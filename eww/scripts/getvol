@@ -1,0 +1,16 @@
+#!/bin/sh
+
+SINKS=$(pactl list short sinks | awk '{print $1}')
+
+for SINK in $SINKS; do
+    INFO=$(pactl get-sink-mute $SINK)
+
+    if [ "$INFO" = "Mute: yes" ]; then
+        echo 0
+        exit
+    else
+        BASE_VOLUME=$(pactl list sinks | grep -A 15 "Sink #$SINK" | grep "Base Volume" | awk '{print $3}')
+        BASE_VOLUME_PERCENT=$(( $BASE_VOLUME * 100 / 65536 ))
+        echo $BASE_VOLUME_PERCENT
+    fi
+done
